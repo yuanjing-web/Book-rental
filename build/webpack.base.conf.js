@@ -2,7 +2,11 @@
 const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
-const vueLoaderConfig = require('./vue-loader.conf')
+const { vueLoaderConfig } = require('./vue-loader.conf')
+
+// const os = require('os');
+// const HappyPack  = require('happypack');
+// const happThreadPool = HappyPack.ThreadPool({size: os.cpus().length});
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -28,14 +32,17 @@ module.exports = {
     path: config.build.assetsRoot,
     filename: '[name].js',
     publicPath: process.env.NODE_ENV === 'production'
-      ? config.build.assetsPublicPath
+      ? config.build.assetsPublicPatressh
       : config.dev.assetsPublicPath
   },
   resolve: {
+    modules: [path.resolve(__dirname, '../node_modules')],
     extensions: ['.js', '.vue', '.json'],
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('src'),
+      'components': resolve('src/components'),
+      // 'styles': resolve('src/styles'),
     }
   },
   module: {
@@ -52,8 +59,21 @@ module.exports = {
         include: [resolve('src'), resolve('test'), resolve('node_modules/webpack-dev-server/client')]
       },
       {
+        test: /\.style$/,
+        use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.svg$/,
+        loader: 'svg-sprite-loader',
+        include: [resolve('src/icons')],
+        options: {
+          symbolId: 'icon-[name]'
+        }
+      },
+      {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         loader: 'url-loader',
+        exclude: [resolve('src/icons')],
         options: {
           limit: 10000,
           name: utils.assetsPath('img/[name].[hash:7].[ext]')
@@ -77,6 +97,15 @@ module.exports = {
       }
     ]
   },
+  // plugins: [
+  //   new VueLoaderPlugin(),
+  //   new HappyPack({
+  //     id: 'js',
+  //     cache: true,
+  //     loaders: ['babel-loader?cacheDirectory=true'],
+  //     threadPool: happThreadPool
+  //   })
+  // ],
   node: {
     // prevent webpack from injecting useless setImmediate polyfill because Vue
     // source contains it (although only uses it if it's native).

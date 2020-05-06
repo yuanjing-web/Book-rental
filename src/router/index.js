@@ -1,15 +1,17 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
+import router from './routers'
+import Config from '@/config'
+import NProgress from 'nprogress' // 进度条progress bar
+import 'nprogress/nprogress.css'// progress bar style
 
-Vue.use(Router)
+NProgress.configure({ showSpinner: false })// NProgress Configuration
 
-export default new Router({
-  routes: [
-    {
-      path: '/',
-      name: 'HelloWorld',
-      component: HelloWorld
-    }
-  ]
+router.beforeEach((to, from, next) => {
+  if (to.meta.title) {
+    document.title = to.meta.title + ' - ' + Config.webName
+  }
+  NProgress.start() // start progress bar
+})
+
+router.afterEach(() => {
+  NProgress.done() // finish progress bar
 })
